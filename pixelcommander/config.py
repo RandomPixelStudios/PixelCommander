@@ -105,6 +105,7 @@ DEFAULTS = {
     "date_format": "dd.MM.yyyy HH:mm",
     "size_format": "bytes",  # bytes | dynamic
     "show_buttonbar": True,
+    "check_updates": True,
     "show_drivebar": True,
     "show_cmdline": True,
     "show_fkeys": True,

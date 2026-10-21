@@ -124,6 +124,7 @@ COMMANDS = {
     "cm_SaveSettings": ("Einstellungen speichern", "", "document-save", "config"),
     # Hilfe
     "cm_Keyboard": ("Tastaturbelegung", "F1", "help-contents", "help"),
+    "cm_CheckUpdates": ("Nach Updates suchen", "", "system-software-update", "help"),
     "cm_About": ("Über PixelCommander", "", "help-about", "help"),
     "cm_SwitchPanel": ("Fenster wechseln (Tab)", "", "", None),
     "cm_FocusCmdLine": ("Kommandozeile fokussieren", "", "", None),
@@ -403,11 +404,17 @@ class PixelCommander(QtWidgets.QMainWindow):
         vm = menus["config"]
         vm.addSeparator()
         for key, label in [("show_buttonbar", "Buttonleiste"), ("show_drivebar", "Laufwerksleisten"),
-                           ("show_cmdline", "Kommandozeile"), ("show_fkeys", "Funktionstastenleiste")]:
+                           ("show_cmdline", "Kommandozeile"), ("show_fkeys", "Funktionstastenleiste"),
+                           ("check_updates", "Beim Start nach Updates suchen")]:
             a = vm.addAction(label)
             a.setCheckable(True)
             a.setChecked(bool(config.get(key)))
             a.toggled.connect(lambda c, k=key: (config.__setitem__(k, c), self.apply_settings()))
+        from .updater import UpdateButton
+        self.update_button = UpdateButton(self)
+        mb.setCornerWidget(self.update_button, Qt.Corner.TopRightCorner)
+        if config.get("check_updates", True):
+            QtCore.QTimer.singleShot(3000, self.update_button.check)
         self.hotlist_menu = None
 
     def _build_buttonbar(self):
@@ -2130,6 +2137,9 @@ class PixelCommander(QtWidgets.QMainWindow):
         lay.addWidget(bb)
         dlg.resize(620, 640)
         qexec(dlg)
+
+    def cmd_CheckUpdates(self):
+        self.update_button.check(manual=True)
 
     def cmd_About(self):
         from .qt import QT6
